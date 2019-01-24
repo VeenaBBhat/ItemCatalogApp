@@ -1,0 +1,83 @@
+{% extends "layout.html" %}
+{% block title %}Index{% endblock %}
+{% block head %}
+  {{ super() }}
+  <!--LOAD PRE-REQUISITES FOR GOOGLE SIGN IN -->
+   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js">
+  </script>
+
+<script src="//apis.google.com/js/platform.js?onload=start"> </script>
+<!-- END PRE-REQUISITES FOR GOOGLE SIGN IN -->
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Add icon library -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="../static/catalog.css">
+{% endblock %}
+{% block content %}
+  <form action="{{ url_for('userLogin')}}" method = 'post' style="max-width:500px;margin:auto" id="loginform">
+	{{message}}
+  <h2>Sign-In to Catalog App</h2>
+  <div class="input-container">
+    <i class="fa fa-user icon"></i>
+    <input class="input-field" type="text" placeholder="Username" name="username">
+  </div>
+  
+  <div class="input-container">
+    <i class="fa fa-key icon"></i>
+    <input class="input-field" type="password" placeholder="Password" name="password">
+  </div>
+
+  <button type="submit" class="btn">SignIn</button>
+  <h3>Do not have an account? Login using Google
+  <!-- GOOGLE PLUS SIGN IN --> 	          
+          <span id="signinButton">
+          <span class="g-signin"
+            data-scope="openid email"
+            data-clientid="61290766957-0n5fi2gnitijukmhh736jjfhjqe9d0l5.apps.googleusercontent.com"
+            data-redirecturi="postmessage"
+            data-accesstype="offline"
+            data-cookiepolicy="single_host_origin"
+            data-callback="signInCallback"
+            data-approvalprompt="force">
+          </span>
+        </span></h3> 
+  <hr/>
+<div id="result"></div>
+</form>
+
+<script>
+function signInCallback(authResult) {
+  if (authResult['code']) {
+    // Hide the sign-in button now that the user is authorized
+    $('#signinButton').attr('style', 'display: none');
+    // Send the one-time-use code to the server, if the server responds, write a 'login successful' message to the web page and then redirect back to the main restaurants page
+    $.ajax({
+      type: 'POST',
+      url: '/gconnect?state={{STATE}}',
+      processData: false,
+      data: authResult['code'],
+      contentType: 'application/octet-stream; charset=utf-8',
+      success: function(result) {
+        // Handle or verify the server response if necessary.
+        if (result) {
+          $('#result').html('Login Successful!</br>'+ result + '</br>Redirecting...')
+         setTimeout(function() {
+			$('#loginform').attr('style', 'display: none');
+          window.location.href = "/catalog";
+         }, 4000);
+          
+      } else if (authResult['error']) {
+    console.log('There was an error: ' + authResult['error']);
+  } else {
+        $('#result').html('Failed to make a server-side call. Check your configuration and console.');
+         }
+      }
+      
+  }); } }
+</script>
+
+
+
+<!--END GOOGLE PLUS SIGN IN -->
+{% endblock %}

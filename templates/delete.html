@@ -1,0 +1,29 @@
+{% extends "layout.html" %}
+{% block title %}Delete Item{% endblock %}
+{% block head %}
+  {{ super() }}
+{% endblock %}
+{% block content %}
+  <nav class="navbar navbar-inverse">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="/catalog">Item Catalog App</a>
+    </div>
+    <ul class="nav navbar-nav">
+      <li class="active"><a href="/catalog">Home</a></li>
+    </ul>
+	<div style="text-align:right">
+		{% if session['username']!=null or session['access_token']!=null%}
+	<button onclick="location.href='/gdisconnect'" class="btn btn-primary">Signout</button>
+      {% endif %}
+	</div>
+  </div>
+</nav>  
+<div class="container" style="width:800px;">
+	<h2>Delete Item</h2>
+	<form action="{{ url_for('itemDelete',item_name = item)}}" method = 'post'>
+		<p>Are you sure you want to delete {{item}}?</p>
+		<input class="button1" type="submit" value="Submit">
+	</form>
+</div>
+{% endblock %}

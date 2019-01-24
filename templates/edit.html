@@ -1,0 +1,56 @@
+{% extends "layout.html" %}
+{% block title %}Edit Item{% endblock %}
+{% block head %}
+  {{ super() }}
+{% endblock %}
+{% block content %}
+  <nav class="navbar navbar-inverse">
+	  <div class="container-fluid">
+		<div class="navbar-header">
+		  <a class="navbar-brand" href="/catalog">Item Catalog App</a>
+		</div>
+		<ul class="nav navbar-nav">
+		  <li class="active"><a href="/catalog">Home</a></li>
+		</ul>
+		<div style="text-align:right">
+		{% if session['username']!=null or session['access_token']!=null%}
+			<button onclick="location.href='/gdisconnect'" class="btn btn-primary">Signout</button>
+		  {% endif %}
+		</div>
+	  </div>
+	</nav>  
+	<div class="container" style="width:800px;">
+		<h1>Edit Item</h1>
+		<br/>			
+		<form action="{{ url_for('itemEdit',item_name = item.name)}}" method = 'post' style="width:50%">
+			<div class="form-group">
+				<label for="name">Title</label>
+				<input type="text" name="name" value="" class="form-control" placeholder="{{item.name}}"/>
+			</div>
+			<div class="form-group">
+				<label for="description">Description</label>
+				<input type="text" name="description" value="" class="form-control" 
+				placeholder="{{item.description}}"/>
+			</div>
+			<div class="form-group">
+				<label for="pwd">Category</label>
+				<select name="categories" width="300px" class="form-control" id="categories">
+					<option name="Mobiles" value="1">Mobiles</option>
+					<option name="Laptops" value="2">Laptops</option>
+					<option name="Tablets" value="3">Tablets</option>
+					<option name="Pendrives" value="4">Pendrives</option>
+					<option name="Wearables" value="5">Wearables</option>
+					<option name="SmartAssysts" value="6">SmartAssysts</option>
+					<option name="PowerBanks" value="7">PowerBanks</option>
+				</select>
+			</div>
+			<button type="submit" class="btn btn-primary">Submit</button>
+		</form>
+	</div>
+	<script>
+		var categories=document.getElementById('categories');
+		for(c of categories)
+			if(c.value=={{item.category_id}})
+				c.selected=true;
+	</script>
+{% endblock %}
