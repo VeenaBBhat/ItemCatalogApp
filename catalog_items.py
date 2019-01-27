@@ -105,15 +105,7 @@ def gconnect():
         response.headers['Content-Type'] = 'application/json'
         return response
 
-    stored_access_token = login_session.get('access_token')
-    stored_gplus_id = login_session.get('gplus_id')
-    if stored_access_token is not None and gplus_id == stored_gplus_id:
-        response = make_response(json.dumps(
-            'Current user is already connected.'), 200)
-        response.headers['Content-Type'] = 'application/json'
-        return response
-
-    # Store the access token in the session for later use.
+        # Store the access token in the session for later use.
     login_session['access_token'] = credentials.access_token
     login_session['gplus_id'] = gplus_id
 
@@ -127,6 +119,30 @@ def gconnect():
     login_session['username'] = data['name']
     login_session['picture'] = data['picture']
     login_session['email'] = data['email']
+
+    # Get User created
+    session = DBSession()
+    print "User created"
+    try:
+        currentUser = session.query(User).filter_by(
+            name=login_session['email']).one()
+        login_session['userid'] = currentUser.id
+    except BaseException:
+        newUser = User(name=login_session['email'],
+                       password=login_session['username'])
+        session.add(newUser)
+        session.commit()
+        login_session['userid'] = session.query(User).filter_by(
+            name=login_session['email']).one().id
+        print newUser
+
+    stored_access_token = login_session.get('access_token')
+    stored_gplus_id = login_session.get('gplus_id')
+    if stored_access_token is not None and gplus_id == stored_gplus_id:
+        response = make_response(json.dumps(
+            'Current user is already connected.'), 200)
+        response.headers['Content-Type'] = 'application/json'
+        return response
 
     output = ''
     output += '<h1>Welcome, '
@@ -282,9 +298,9 @@ def itemAdd():
 @app.route('/catalog/<string:item_name>/edit', methods=['GET', 'POST'])
 def itemEdit(item_name):
     """ This handler is invoked for editing an item details """
-    if login_session['userid']:
-        session = DBSession()
-        editedItem = session.query(Item).filter_by(name=item_name).one()
+    session = DBSession()
+    editedItem = session.query(Item).filter_by(name=item_name).one()
+    if login_session['userid'] == editedItem.user_id:
         if request.method == 'POST':
             if request.form['name']:
                 editedItem.name = request.form['name']
@@ -309,12 +325,11 @@ def itemEdit(item_name):
            methods=['GET', 'POST'])
 def itemDelete(item_name):
     """ This handler is invoked for deleting an item """
-    if login_session['userid']:
-        session = DBSession()
-        itemToDelete = session.query(Item).filter_by(name=item_name).all()
+    session = DBSession()
+    itemToDelete = session.query(Item).filter_by(name=item_name).one()
+    if login_session['userid'] == itemToDelete.user_id:
         if request.method == 'POST':
-            for item in itemToDelete:
-                session.delete(item)
+            session.delete(itemToDelete)
             session.commit()
 
             return redirect(url_for('listCatalog'))
