@@ -70,11 +70,12 @@ Edit the file `/etc/ssh/sshd_config` and `Port 22` to 2200
 sudo timedatectl set-timezone UTC
 
 ## Deploy the ItemCatalogApp as WSGI application
-[`https://www.digitalocean.com/community/tutorials/how-to-deploy-a-flask-application-on-an-ubuntu-vps`] Digital Ocean tutorial on how to deploy a Flask app on an Ubuntu VPS
+[Digital Ocean tutorial on how to deploy a Flask app on an Ubuntu VPS](https://www.digitalocean.com/community/tutorials/how-to-deploy-a-flask-application-on-an-ubuntu-vps) 
 1. Create a file structure of catalog under /var/www/catalog
 2. Rename `catalog_items.py` to `__init__.py`
 3. Create a file `catalog.wsgi` with below content
-`#!/usr/bin/python
+
+```#!/usr/bin/python
 import os
 import sys
 import logging
@@ -82,11 +83,12 @@ logging.basicConfig(stream=sys.stderr)
 sys.path.insert(0, "/var/www/catalog/")
 
 from catalog import app as application
-application.secret_key = os.environ.get("SECRET_KEY")`
+application.secret_key = os.environ.get("SECRET_KEY")
+```
 
 3. Follow the steps in the above link to create a virtual host
 4. Content of /etc/apache2/sites-available/catalog.conf
-`<VirtualHost *:80>
+```<VirtualHost *:80>
         ServerName 52.66.206.172
         ServerAdmin admin@52.66.206.172
         WSGIScriptAlias / /var/www/catalog/catalog.wsgi
@@ -102,7 +104,8 @@ application.secret_key = os.environ.get("SECRET_KEY")`
         ErrorLog ${APACHE_LOG_DIR}/error.log
         LogLevel warn
         CustomLog ${APACHE_LOG_DIR}/access.log combined
-</VirtualHost>`
+</VirtualHost>
+```
 
 5. Disable the default virtual host
 `sudo a2dissite 000-default.conf`
